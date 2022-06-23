@@ -3,31 +3,26 @@ name: dotnet
     inputs:
       DotNetVersion:
         description: 'Enter dotnet-version for build'
-        type: string
         required: false
         default: 5.x
       NugetFeedName:
         description: 'Oragnisation Nuget Feed Name'
-        type: string
         default: FreemarketFX
         required: false
       ProjectPath:
         description: 'location of csproj'
         default: ''
-        type: string
       BuildAgent:
         description: 'Hoste agent name'
         default: 'ubuntu-latest'
         required: false
-        type: string
       ProjectName:
         description: 'Project Name'
         required: true
-        type: string
       ProjectTestPath:
         description: 'path to test project'
         required: false
-        type: string
+
 
 jobs:
   build:
