@@ -30,8 +30,8 @@ runs:
       - name: Output Version
         run: echo ${{ inputs.DotNetVersion }}
 
-      - name: Output directory
-        run: echo ${{ inputs.ProjectPath }}
+#       - name: Output directory
+#         run: echo ${{ inputs.ProjectPath }}
 
 #       - name: 'Checkout'
 #         uses: actions/checkout@v3
