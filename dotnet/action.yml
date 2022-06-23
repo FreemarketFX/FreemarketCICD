@@ -10,5 +10,5 @@ inputs:
 runs:
   using: "test"
    steps:
-      - name: Output Version
-        run: echo ${{ inputs.DotNetVersion }}
+     - name: Output Version
+       run: echo ${{ inputs.DotNetVersion }}
