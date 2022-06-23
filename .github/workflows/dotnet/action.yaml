@@ -1,27 +1,27 @@
 name: dotnet
 
-    inputs:
-      DotNetVersion:
-        description: 'Enter dotnet-version for build'
-        required: false
-        default: 5.x
-      NugetFeedName:
-        description: 'Oragnisation Nuget Feed Name'
-        default: FreemarketFX
-        required: false
-      ProjectPath:
-        description: 'location of csproj'
-        default: ''
-      BuildAgent:
-        description: 'Hoste agent name'
-        default: 'ubuntu-latest'
-        required: false
-      ProjectName:
-        description: 'Project Name'
-        required: true
-      ProjectTestPath:
-        description: 'path to test project'
-        required: false
+inputs:
+  DotNetVersion:
+    description: 'Enter dotnet-version for build'
+    required: false
+    default: 5.x
+  NugetFeedName:
+    description: 'Oragnisation Nuget Feed Name'
+    default: FreemarketFX
+    required: false
+  ProjectPath:
+    description: 'location of csproj'
+    default: ''
+  BuildAgent:
+    description: 'Hoste agent name'
+    default: 'ubuntu-latest'
+    required: false
+  ProjectName:
+    description: 'Project Name'
+    required: true
+  ProjectTestPath:
+    description: 'path to test project'
+    required: false
 
 
 jobs:
@@ -30,13 +30,13 @@ jobs:
    steps:
       - name: Output Version
         run: echo ${{ inputs.DotNetVersion }}
-        
+
       - name: Output directory
         run: echo ${{ inputs.ProjectPath }}
-      
+
       - name: 'Checkout'
         uses: actions/checkout@v3
-      
+
       - name: Setup .NET
         uses: actions/setup-dotnet@v2.1.0
         with:
@@ -51,12 +51,12 @@ jobs:
           key: ${{ runner.os }}-nuget-${{ hashFiles('**/packages.lock.json') }}
           restore-keys: |
             ${{ runner.os }}-nuget-
-            
+
       - name: Install dependencies
         run: dotnet restore ${{ inputs.ProjectPath }}
-      
+
       - name: Build with dotnet
-        run: dotnet build ${{ inputs.ProjectPath }} --configuration Release 
+        run: dotnet build ${{ inputs.ProjectPath }} --configuration Release
 
       - name: dotnet publish
         run: dotnet publish ${{ inputs.ProjectPath }} -c Release -o ${{env.DOTNET_ROOT}}/${{ inputs.ProjectName }}
