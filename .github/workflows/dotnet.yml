@@ -1,0 +1,75 @@
+name: dotnet
+
+on:
+  workflow_call:
+    inputs:
+      DotNetVersion:
+        description: 'Enter dotnet-version for build'
+        type: string
+        required: false
+        default: 5.x
+      NugetFeedName:
+        description: 'Oragnisation Nuget Feed Name'
+        type: string
+        default: FreemarketFX
+        required: false
+      ProjectPath:
+        description: 'location of csproj'
+        default: ''
+        type: string
+      BuildAgent:
+        description: 'Hoste agent name'
+        default: 'ubuntu-latest'
+        required: false
+        type: string
+      ProjectName:
+        description: 'Project Name'
+        required: true
+        type: string
+      ProjectTestPath:
+        description: 'path to test project'
+        required: false
+        type: string
+
+jobs:
+  build:
+   runs-on: ${{ inputs.BuildAgent }}
+   steps:
+      - name: Output Version
+        run: echo ${{ inputs.DotNetVersion }}
+        
+      - name: Output directory
+        run: echo ${{ inputs.ProjectPath }}
+      
+      - name: 'Checkout'
+        uses: actions/checkout@v3
+      
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v2.1.0
+        with:
+          dotnet-version: ${{ inputs.DotNetVersion }}
+#           source-url: https://nuget.pkg.github.com/${{inputs.NugetFeedName}}/index.json
+#         env:
+#           NUGET_AUTH_TOKEN: ${{secrets.GITHUB_TOKEN}}
+      - name: Set up dependency caching for faster builds
+        uses: actions/cache@v3
+        with:
+          path: ~/.nuget/packages
+          key: ${{ runner.os }}-nuget-${{ hashFiles('**/packages.lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-nuget-
+            
+      - name: Install dependencies
+        run: dotnet restore ${{ inputs.ProjectPath }}
+      
+      - name: Build with dotnet
+        run: dotnet build ${{ inputs.ProjectPath }} --configuration Release 
+
+      - name: dotnet publish
+        run: dotnet publish ${{ inputs.ProjectPath }} -c Release -o ${{env.DOTNET_ROOT}}/${{ inputs.ProjectName }}
+
+      - name: Upload artifact for deployment job
+        uses: actions/upload-artifact@v3
+        with:
+          name: .net-app
+          path: ${{env.DOTNET_ROOT}}/${{ inputs.ProjectName }}
