@@ -24,9 +24,8 @@ inputs:
 #     required: false
 
 
-jobs:
-  build:
-   runs-on: ${{ inputs.BuildAgent }}
+runs:
+  using: "test"
    steps:
       - name: Output Version
         run: echo ${{ inputs.DotNetVersion }}
