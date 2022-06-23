@@ -5,6 +5,7 @@ inputs:
     description: 'Enter dotnet-version for build'
     required: false
     default: 5.x
+    type: string
 #   NugetFeedName:
 #     description: 'Oragnisation Nuget Feed Name'
 #     default: FreemarketFX
