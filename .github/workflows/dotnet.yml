@@ -18,7 +18,7 @@ on:
         type: string
         required: true
       BuildAgent:
-        description: 'Hoste agent name'
+        description: 'Host agent name'
         default: 'ubuntu-latest'
         required: false
         type: string
