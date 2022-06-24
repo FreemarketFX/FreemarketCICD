@@ -60,7 +60,7 @@ jobs:
             ${{ runner.os }}-nuget-
             
       - name: Installing dependencies
-        run: dotnet restore ${{ inputs.ProjectPath }}
+        run: dotnet restore ${{ GITHUB_WORKSPACE }}/${{ inputs.ProjectPath }}
         
       - name: Tests
         run: dotnet test ${{ inputs.ProjectTestPath }} --configuration Release --no-build --verbosity normal --logger "trx;LogFileName=test-results.trx"
