@@ -44,7 +44,7 @@ jobs:
       - name: 'Checkout'
         uses: actions/checkout@v3
       
-      - name: Setup .NET
+      - name: Setup .NET ${{ inputs.DotNetVersion }}
         uses: actions/setup-dotnet@v2.1.0
         with:
           dotnet-version: ${{ inputs.DotNetVersion }}
@@ -59,13 +59,13 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-nuget-
             
-      - name: Install dependencies
+      - name: Installing dependencies
         run: dotnet restore ${{ inputs.ProjectPath }}
       
-      - name: Build with dotnet
+      - name: Build
         run: dotnet build ${{ inputs.ProjectPath }} --configuration Release 
 
-      - name: dotnet publish
+      - name: Publishing ${{ inputs.ProjectName }}
         run: dotnet publish ${{ inputs.ProjectPath }} -c Release -o ${{env.DOTNET_ROOT}}/${{ inputs.ProjectName }}
 
       - name: Upload artifact for deployment job
