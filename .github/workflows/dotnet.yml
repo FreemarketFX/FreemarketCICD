@@ -14,8 +14,9 @@ on:
         required: false
       ProjectPath:
         description: 'location of csproj'
-        default: ''
+        default: .
         type: string
+        required: true
       BuildAgent:
         description: 'Hoste agent name'
         default: 'ubuntu-latest'
