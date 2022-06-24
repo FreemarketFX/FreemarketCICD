@@ -14,7 +14,7 @@ on:
         required: false
       ProjectPath:
         description: 'location of csproj'
-        default: .
+        default: .*.csproj
         type: string
         required: true
       BuildAgent:
@@ -61,7 +61,11 @@ jobs:
             
       - name: Installing dependencies
         run: dotnet restore ${{ inputs.ProjectPath }}
-      
+        
+      - name: Tests
+        run: dotnet test ${{ inputs.ProjectTestPath }} --configuration Release --no-build 
+        if: ${{ inputs.ProjectTestPath }}
+        
       - name: Build
         run: dotnet build ${{ inputs.ProjectPath }} --configuration Release 
 
