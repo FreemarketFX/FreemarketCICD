@@ -3,8 +3,8 @@
 
 ## Description
 
-Welcome to Freemarkt centralised build and release workflows.
-This repository hosts templates of a repeatable build and release process for a rande of languages and Azure resourcse.
+Welcome to Freemarket centralised build and release workflows.
+This repository hosts templates for a repeatable build and release process in a variety of languages and Azure resources.
 
 ## Status
 
