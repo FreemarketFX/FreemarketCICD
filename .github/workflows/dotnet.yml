@@ -63,7 +63,7 @@ jobs:
         run: dotnet restore ${{ inputs.ProjectPath }}
         
       - name: Tests
-        run: dotnet test ${{ inputs.ProjectTestPath }} --configuration Release --no-build 
+        run: dotnet test ${{ inputs.ProjectTestPath }} --configuration Release --no-build --verbosity normal --logger "trx;LogFileName=test-results.trx"
         if: ${{ inputs.ProjectTestPath }}
         
       - name: Build
