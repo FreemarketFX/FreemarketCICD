@@ -43,11 +43,7 @@ jobs:
       
       - name: 'Checkout'
         uses: actions/checkout@v3
-        
-      - name: Trust dotnet certs
-        run: dotnet dev-certs https --trust
-        if: contains(runner, 'windows')
-        
+                
       - name: Setup .NET ${{ inputs.DotNetVersion }}
         uses: actions/setup-dotnet@v2.1.0
         with:
@@ -65,6 +61,10 @@ jobs:
             
       - name: Installing dependencies
         run: dotnet restore $GITHUB_WORKSPACE/${{ inputs.ProjectPath }}
+        
+      - name: Trust dotnet certs
+        run: dotnet dev-certs https --trust
+        if: contains(${{inputs.BuildAgent}}, 'windows')
         
       - name: Tests
         run: dotnet test ${{ inputs.ProjectTestPath }} --configuration Release --verbosity normal --logger "trx;LogFileName=test-results.trx" # --no-build 
