@@ -43,7 +43,11 @@ jobs:
       
       - name: 'Checkout'
         uses: actions/checkout@v3
-      
+        
+      - name: Trust dotnet certs
+        run: dotnet dev-certs https --trust
+        if: contains(runner, windows)
+        
       - name: Setup .NET ${{ inputs.DotNetVersion }}
         uses: actions/setup-dotnet@v2.1.0
         with:
