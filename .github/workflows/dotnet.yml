@@ -63,7 +63,7 @@ jobs:
         run: dotnet restore $GITHUB_WORKSPACE/${{ inputs.ProjectPath }}
         
       - name: Tests
-        run: dotnet test ${{ inputs.ProjectTestPath }} --configuration Release --no-build --verbosity normal --logger "trx;LogFileName=test-results.trx"
+        run: dotnet test ${{ inputs.ProjectTestPath }} --configuration Release --verbosity normal --logger "trx;LogFileName=test-results.trx" # --no-build 
         if: ${{ inputs.ProjectTestPath }}
         
       - name: Test Report
