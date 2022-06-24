@@ -71,7 +71,7 @@ jobs:
         if: success() || failure() && ${{ inputs.ProjectTestPath }}
         with:
           name: Tests
-          path: 'tests/**/TestResults/test-results.trx'
+          path: '${{ inputs.ProjectName }}/tests/**/TestResults/test-results.trx'
           reporter: dotnet-trx
         
       - name: Build
