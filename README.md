@@ -20,7 +20,7 @@ Welcome to Freemarkt centralised build and release workflows
 
 
 
-## .NET Builds
+## .NET Builds [![.net 6](https://github.com/FreemarketFX/mockapp/actions/workflows/main.yml/badge.svg)](https://github.com/FreemarketFX/mockapp/actions/workflows/main.yml)
 
 <h3>Examples</h3>
 
