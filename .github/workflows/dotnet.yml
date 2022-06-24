@@ -66,19 +66,17 @@ jobs:
       - name: Installing dependencies
         run: dotnet restore $GITHUB_WORKSPACE/${{ inputs.ProjectPath }}
         
-
-        
       - name: Tests
         run: dotnet test ${{ inputs.ProjectTestPath }} --configuration Release --verbosity normal --logger "trx;LogFileName=test-results.trx" # --no-build 
         if: ${{ inputs.ProjectTestPath }}
         
-      - name: Test Report
-        uses: dorny/test-reporter@v1
-        if: success() || failure() && ${{ inputs.ProjectTestPath }}
-        with:
-          name: Tests
-          path: '${{ inputs.ProjectName }}.tests/**/TestResults/test-results.trx'
-          reporter: dotnet-trx
+#       - name: Test Report
+#         uses: dorny/test-reporter@v1
+#         if: success() || failure() && ${{ inputs.ProjectTestPath }}
+#         with:
+#           name: Tests
+#           path: '${{ inputs.ProjectName }}.tests/**/TestResults/test-results.trx'
+#           reporter: dotnet-trx
         
       - name: Build
         run: dotnet build ${{ inputs.ProjectPath }} --configuration Release 
