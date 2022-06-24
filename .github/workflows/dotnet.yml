@@ -66,6 +66,14 @@ jobs:
         run: dotnet test ${{ inputs.ProjectTestPath }} --configuration Release --no-build --verbosity normal --logger "trx;LogFileName=test-results.trx"
         if: ${{ inputs.ProjectTestPath }}
         
+      - name: Test Report
+        uses: dorny/test-reporter@v1
+        if: success() || failure() && ${{ inputs.ProjectTestPath }}
+        with:
+          name: Tests
+          path: 'tests/**/TestResults/test-results.trx'
+          reporter: dotnet-trx
+        
       - name: Build
         run: dotnet build ${{ inputs.ProjectPath }} --configuration Release 
 
