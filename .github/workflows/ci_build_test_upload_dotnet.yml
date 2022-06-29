@@ -1,0 +1,156 @@
+####################################################################################
+## DONOT MODIFY THIS FILE AS THIS IS THE CENTRALISED YML FILE TO SET THE STANDARD ##
+##                                CALLED WORKFLOW                                 ##
+####################################################################################
+
+name: Create, test and upload package
+
+on:
+  workflow_call:
+    inputs:
+      runs-on:
+        description: Platform to execute on
+        type: string
+        default: ubuntu-latest
+        
+      dotnet-version:
+        description: Version of dotnet to use
+        type: string
+        default: 5.0.x
+
+      project-folder:
+        description: The folder containing the project to csproj
+        type: string
+        default: src
+
+      csproj_name:
+        description: The folder containing the project to build
+        type: string
+        default: .
+
+      publish-configuration:
+        description: Configuration to publish
+        type: string
+        default: Release
+
+      run-tests:
+        description: Run tests
+        type: boolean
+        default: true
+
+      artifact-name:
+        description: Name of the artifact to upload
+        type: string
+        default: helloworld
+      
+      maj-minor:
+        description: Major minor and build number for package version
+        type: string
+        default: 0.0.
+
+      build-incrementer:
+        description: build number
+        type: string
+        default: 0
+      
+      output-folder-name:
+        description: folder path of the build output ie the package
+        type: string
+        default: github
+
+      package-destination:
+        description: Name of the where to upload
+        type: string
+        default: github
+
+    secrets:  
+      octo_api_key:
+        required: false 
+      
+      octo_server_url:
+        required: false
+      
+      github_nuget_token:
+        required: false
+
+env:
+  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+  PACKAGE_VERSION: ${{ inputs.maj-minor }}${{ inputs.build-incrementer }}
+  OUTPKG_PATH: $GITHUB_WORKSPACE/artifacts
+
+jobs:
+  build:
+    name: Build dotnet app
+    
+    runs-on: ${{ inputs.runs-on }}
+    defaults:
+      run:
+        working-directory: ${{ github.workspace }}
+    
+    steps:
+      - uses: actions/checkout@v2
+      # Set the package version
+      - name: Set Version
+        run: echo CALLED ${{ env.PACKAGE_VERSION }}
+        
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v1
+        with:
+          dotnet-version: ${{ inputs.dotnet-version }}
+
+      - name: Restore dependencies
+        run: dotnet restore ${{ github.workspace }}/${{ inputs.project-folder }}/${{ inputs.csproj_name }}
+
+      - name: Build
+        run: dotnet build ${{ github.workspace }}/${{ inputs.project-folder }}/${{ inputs.csproj_name }} --configuration ${{ inputs.publish-configuration }} --no-restore   
+
+      - name: Test
+        if: ${{ inputs.run-tests }}
+        run: dotnet test --no-build --verbosity normal
+
+      - name: Create artifacts folder
+        run: |
+          mkdir ${{ env.OUTPKG_PATH }}
+          mkdir ${{ env.OUTPKG_PATH }}/${{ inputs.output-folder-name }}
+
+      - name: Publish
+        run: dotnet publish ${{ github.workspace }}/${{ inputs.project-folder }}/${{ inputs.csproj_name }} --configuration ${{ inputs.publish-configuration }} -o ${{ env.OUTPKG_PATH }}/${{ inputs.output-folder-name }}
+
+      # Push artifact to github if flagged
+      - name: Upload a Build Artifact to github
+        if: ${{inputs.package-destination == 'github'}}
+        run: |
+          dotnet pack ${{ inputs.artifact-name }} --configuration Release /p:Version=${{ env.PACKAGE_VERSION }} --output ${{ env.OUTPKG_PATH }}
+          dotnet nuget add source --username wearefreemarket --password ${{ secrets.github_nuget_token }} --store-password-in-clear-text --name GitHub-FreemarketFX "https://nuget.pkg.github.com/freemarketfx/index.json"
+          dotnet nuget push ${{ env.OUTPKG_PATH }}/${{ inputs.artifact-name }}.${{ env.PACKAGE_VERSION }}.nupkg --source GitHub-FreemarketFX --api-key ${{ secrets.github_nuget_token }} --skip-duplicate
+      
+      # Install the Octopus CLI if flagged for Octo pkg
+      - name: Install Octopus CLI 🐙
+        if: ${{inputs.package-destination == 'octopus'}}
+        uses: OctopusDeploy/install-octopus-cli-action@v1
+        with:
+          version: latest
+      
+      - name: Create Octo Package with version
+        if: ${{inputs.package-destination == 'octopus'}}
+        run: |
+          octo pack --id=${{ inputs.artifact-name }}.Deploy --format="NuGet" --version=${{ env.PACKAGE_VERSION }} --basePath=${{ env.OUTPKG_PATH }}/${{ inputs.output-folder-name }} --outFolder=${{ env.OUTPKG_PATH }}
+          
+      # Push artifact to Octopus 
+      - name: Push a package to Octopus Deploy 🐙
+        if: ${{inputs.package-destination == 'octopus'}}
+        uses: OctopusDeploy/push-package-action@v1.1.2
+        with:
+          api_key: ${{ secrets.octo_api_key }}
+          server: ${{ secrets.octo_server_url }}
+          packages: artifacts/${{ inputs.artifact-name }}.Deploy.${{ env.PACKAGE_VERSION }}.nupkg
+
+      # Create release in Octopus
+      - name: Create release 🐙
+        if: ${{inputs.package-destination == 'octopus'}}
+        uses: OctopusDeploy/create-release-action@v1.1.1
+        with:
+          api_key: ${{ secrets.octo_api_key }}
+          server: ${{ secrets.octo_server_url }}
+          project: ${{ inputs.artifact-name }}
+          packages: artifacts/${{ inputs.artifact-name }}.Deploy.${{ env.PACKAGE_VERSION }}.nupkg
