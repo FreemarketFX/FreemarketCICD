@@ -38,6 +38,16 @@ on:
         type: boolean
         default: true
 
+      projecttest-path:
+        description: The folder containing the test project file
+        type: string
+        default: .
+      
+      projecttest-file:
+        description: The test project file
+        type: string
+        default: .
+
       artifact-name:
         description: Name of the artifact to upload
         type: string
@@ -106,8 +116,8 @@ jobs:
 
       - name: Test
         if: ${{ inputs.run-tests }}
-        run: dotnet test --no-build --verbosity normal
-
+        run: dotnet test ${{ inputs.projecttest-path }}/${{ inputs.projecttest-file }} --configuration Release --verbosity normal --logger "trx;LogFileName=test-results.trx" # --no-build 
+      
       - name: Create artifacts folder
         run: |
           mkdir ${{ env.OUTPKG_PATH }}
